@@ -1,0 +1,46 @@
+parameters:
+  client.ghost.api_key: 7bc5513d85f078b555e3d4c25b28b3fbe727b08a
+
+services:
+  _defaults:
+    autowire: false
+    public: false
+
+  Reiss\Slack\SlashCommandHandler\GhostHandler:
+    arguments:
+      - '@Reiss\Slack\Agent\GhostAgent'
+
+  Reiss\Slack\Agent\GhostAgent:
+    class: Reiss\Slack\Agent\GuzzleHttpGhostAgent
+    arguments:
+      - '@GuzzleHttp\Client'
+
+  GuzzleHttp\Client:
+    arguments:
+      - base_uri: https://api.ghostinspector.com/
+        handler: '@GuzzleHttp\HandlerStack'
+
+  GuzzleHttp\HandlerStack:
+    factory: 'GuzzleHttp\HandlerStack::create'
+    calls:
+      - { method: unshift, arguments: [ '@reiss_slack.ghost.middleware.set_api_version' ] }
+      - { method: unshift, arguments: [ '@reiss_slack.ghost.middleware.set_api_key' ] }
+
+  reiss_slack.ghost.middleware.set_api_version:
+    class: GuzzleHttp\Middleware
+    factory: 'GuzzleHttp\Middleware::mapRequest'
+    arguments:
+      - '@Reiss\Slack\Client\Middleware\SetGhostApiVersion'
+
+  reiss_slack.ghost.middleware.set_api_key:
+    class: GuzzleHttp\Middleware
+    factory: 'GuzzleHttp\Middleware::mapRequest'
+    arguments:
+      - '@Reiss\Slack\Client\Middleware\SetGhostApiKey'
+
+  Reiss\Slack\Client\Middleware\SetGhostApiVersion:
+    arguments: []
+
+  Reiss\Slack\Client\Middleware\SetGhostApiKey:
+    arguments:
+      - '%client.ghost.api_key%'
