@@ -2,7 +2,7 @@
     "type": "project",
     "license": "proprietary",
     "require": {
-        "php": "^7.1.*",
+        "php": "7.1.*",
         "guzzlehttp/guzzle": "^6.2",
         "phpspec/phpspec": "^3.4",
         "sensio/framework-extra-bundle": "^3.0",
